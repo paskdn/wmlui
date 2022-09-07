@@ -1,0 +1,24 @@
+{
+  "name": "wmlui",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com-personal:paskdn/wmlui.git",
+  "author": "paskdn <kuladeepu6174.san@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "client": "yarn workspace client start",
+    "server": "yarn workspace server start",
+    "start": "concurrently --kill-others-on-fail \"yarn server\"  \"yarn client\"",
+    "client-dev": "yarn workspace client dev",
+    "server-dev": "yarn workspace server dev",
+    "dev": "concurrently --kill-others-on-fail \"yarn server-dev\"  \"yarn client-dev\""
+  },
+  "packageManager": "yarn@3.2.3",
+  "dependencies": {
+    "concurrently": "^7.4.0"
+  }
+}
