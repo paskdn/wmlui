@@ -96,7 +96,12 @@ const getDetails = (links: Links) => {
           position: { x: 10, y: 10 + index * VERTICAL_SPACING },
         })),
       ...destinations
-        .sort((a, b) => a.data.name.localeCompare(b.data.name))
+        .sort((a, b) => {
+          const getLastPath = (path: string) => path.split("/").reverse()[0];
+          return getLastPath(a.data.name).localeCompare(
+            getLastPath(b.data.name)
+          );
+        })
         .map((link: Node, index: number) => ({
           ...link,
           position: { x: 350, y: 10 + index * VERTICAL_SPACING },
