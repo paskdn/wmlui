@@ -20,7 +20,7 @@ export const useUpdateLink = () => {
         const edge = state.edges.find((edge) => edge.data.key === details.key)!;
         edge.data.enabled = !edge.data.enabled;
       });
-      const res = await axios.patch(`http://127.0.0.1:8080/ping`, details);
+      const res = await axios.patch(`http://127.0.0.1:8080/`, details);
       return res.data;
     },
     {
@@ -31,7 +31,7 @@ export const useUpdateLink = () => {
         AppToaster.show({
           icon: "console",
           intent: Intent.SUCCESS,
-          message: `Updated the link.`,
+          message: `Link updated.`,
         });
       },
       onError(error, variables, context) {
@@ -61,9 +61,73 @@ export const useLinks = () => {
 export const useGetLinks = () => {
   const { updateFlow } = useStore();
   return useQuery(["getLinks"], () =>
-    axios.get("http://127.0.0.1:8080/ping").then((res) => {
+    axios.get("http://127.0.0.1:8080/").then((res) => {
       updateFlow(res.data.links);
       return res.data;
     })
+  );
+};
+
+export const useAddLink = (link: string) => {
+  const { updateFlow } = useStore();
+
+  return useQuery(
+    ["addLinks"],
+    () => {
+      AppToaster.show({
+        message: "Adding link.",
+        intent: Intent.NONE,
+      });
+      return axios
+        .post("http://127.0.0.1:8080/link", {
+          paths: link.split(",").map((i) => i.trim()),
+        })
+        .then((res) => res.data);
+    },
+    {
+      enabled: false,
+      onSuccess(data) {
+        updateFlow(data.links);
+        AppToaster.show({
+          message: data.msg,
+          intent: data.msg.includes("Error") ? Intent.WARNING : Intent.SUCCESS,
+        });
+      },
+      onError(err) {
+        AppToaster.show({ message: String(err), intent: Intent.WARNING });
+      },
+    }
+  );
+};
+
+export const useRemoveLink = (id: string) => {
+  const { updateFlow } = useStore();
+
+  return useQuery(
+    ["removeLinks"],
+    () => {
+      AppToaster.show({
+        message: "Adding link.",
+        intent: Intent.NONE,
+      });
+      return axios
+        .patch("http://127.0.0.1:8080/link", {
+          id,
+        })
+        .then((res) => res.data);
+    },
+    {
+      enabled: false,
+      onSuccess(data) {
+        updateFlow(data.links);
+        AppToaster.show({
+          message: data.msg,
+          intent: data.msg.includes("Error") ? Intent.WARNING : Intent.SUCCESS,
+        });
+      },
+      onError(err) {
+        AppToaster.show({ message: String(err), intent: Intent.WARNING });
+      },
+    }
   );
 };

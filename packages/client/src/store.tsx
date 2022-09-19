@@ -14,6 +14,9 @@ import {
   applyEdgeChanges,
   MarkerType,
   Position,
+  OnEdgeUpdateFunc,
+  WrapEdgeProps,
+  updateEdge,
 } from "react-flow-renderer";
 import { Links } from "./types";
 import { Label } from "@blueprintjs/core";
@@ -21,11 +24,16 @@ import { Label } from "@blueprintjs/core";
 const VERTICAL_SPACING = 80;
 
 type RFState = {
+  links: Links;
+  edgeUpdateSuccessful: boolean;
   nodes: Node[];
   edges: Edge[];
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+  onEdgeUpdate: OnEdgeUpdateFunc;
+  onEdgeUpdateStart: WrapEdgeProps<any>["onEdgeUpdateStart"];
+  onEdgeUpdateEnd: WrapEdgeProps<any>["onEdgeUpdateEnd"];
   updateFlow: (links: Links) => void;
   set: (fn: (state: RFState) => void) => void;
 };
@@ -83,7 +91,14 @@ const getDetails = (links: Links) => {
       markerStart: { type: MarkerType.ArrowClosed },
       markerEnd: { type: MarkerType.Arrow },
       type: "buttonedge",
-      data: { enabled, key },
+      data: {
+        enabled,
+        key,
+        meta: {
+          source: src,
+          target: dest,
+        },
+      },
     } as Edge);
   });
 
@@ -113,6 +128,8 @@ const getDetails = (links: Links) => {
 
 // this is our useStore hook that we can use in our components to get parts of the store and call actions
 const useStore = create<RFState>((set, get) => ({
+  links: {},
+  edgeUpdateSuccessful: false,
   nodes: [],
   edges: [],
   onNodesChange: (changes: NodeChange[]) => {
@@ -130,8 +147,34 @@ const useStore = create<RFState>((set, get) => ({
       edges: addEdge(connection, get().edges),
     });
   },
+
+  onEdgeUpdateStart: () => {
+    set({
+      edgeUpdateSuccessful: false,
+    });
+  },
+
+  onEdgeUpdate: (oldEdge, newConnection) => {
+    set({
+      edges: updateEdge(oldEdge, newConnection, get().edges),
+      edgeUpdateSuccessful: true,
+    });
+  },
+
+  onEdgeUpdateEnd: (_, edge) => {
+    const { edgeUpdateSuccessful } = get();
+    if (!edgeUpdateSuccessful) {
+      set({
+        edges: get().edges.filter((e) => e.id !== edge.id),
+      });
+    }
+    set({
+      edgeUpdateSuccessful: true,
+    });
+  },
+
   updateFlow: (links: Links) => {
-    set(getDetails(links));
+    set({ ...getDetails(links), links });
   },
   set: (fn) => set(produce(fn)),
 }));

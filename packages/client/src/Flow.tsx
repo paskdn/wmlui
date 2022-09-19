@@ -15,7 +15,16 @@ const nodeTypes = {
 };
 
 const LinksFlow = () => {
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect } = useStore();
+  const {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    onEdgeUpdate,
+    onEdgeUpdateStart,
+    onEdgeUpdateEnd,
+  } = useStore();
   console.log("linkflow");
   return (
     <ReactFlow
@@ -24,9 +33,13 @@ const LinksFlow = () => {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
+      onEdgeUpdate={onEdgeUpdate}
+      onEdgeUpdateStart={onEdgeUpdateStart}
+      onEdgeUpdateEnd={onEdgeUpdateEnd}
       edgeTypes={edgeTypes}
       nodeTypes={nodeTypes}
       fitView
+      attributionPosition="top-left"
     >
       <Controls />
       <Background />
@@ -45,7 +58,17 @@ function Flow() {
     return <div>{"An error has occurred: " + error}</div>;
   }
 
-  return <LinksFlow />;
+  return (
+    <div
+      style={{
+        height: "80%",
+        width: "70%",
+        backgroundColor: "white",
+      }}
+    >
+      <LinksFlow />
+    </div>
+  );
 }
 
 export default Flow;

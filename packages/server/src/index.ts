@@ -1,4 +1,4 @@
-import Fastify, { FastifyInstance, RouteShorthandOptions } from "fastify";
+import Fastify, { FastifyInstance } from "fastify";
 import cors from "@fastify/cors";
 import { execa } from "execa";
 
@@ -20,24 +20,6 @@ server.register(cors, (instance) => {
   };
 });
 
-// const opts: RouteShorthandOptions = {
-//   schema: {
-//     response: {
-//       200: {
-//         type: "object",
-//         properties: {
-//           pong: {
-//             type: "string",
-//           },
-//           stdout: {
-//             type: "string",
-//           },
-//         },
-//       },
-//     },
-//   },
-// };
-
 const getLinksJson = async () => {
   let { stdout: globalNodeModulesPath } = await execa("npm", ["root", "-g"]);
   const linksPath = `${globalNodeModulesPath}/wml/src/links.json`;
@@ -57,7 +39,7 @@ const isWmlInstalled = async () => {
   }
 };
 
-server.get("/ping", async (request, reply) => {
+server.get("/", async (request, reply) => {
   let isInstalled = await isWmlInstalled();
 
   if (!isInstalled) {
@@ -68,19 +50,17 @@ server.get("/ping", async (request, reply) => {
   return { isInstalled, links };
 });
 
-server.patch("/ping", async (request, reply) => {
-  console.log(request.body);
+server.patch("/", async (request, reply) => {
   const { key, toggleTo } = request.body as any;
   let isInstalled = await isWmlInstalled();
 
   if (!isInstalled) {
-    return { isInstalled, json: {} };
+    return { isInstalled, links: {} };
   }
 
   const { stdout } = await execa("wml", [toggleTo, key]);
-  const json = await getLinksJson();
-  return { msg: stdout, json };
-  // return { msg: "hello", json: {} };
+  const links = await getLinksJson();
+  return { msg: stdout, links };
 });
 
 server.post("/link", async (request, reply) => {
@@ -88,13 +68,25 @@ server.post("/link", async (request, reply) => {
   let isInstalled = await isWmlInstalled();
 
   if (!isInstalled) {
-    return { isInstalled, json: {} };
+    return { isInstalled, links: {} };
   }
 
   const { stdout } = await execa("wml", ["add"].concat(paths));
-  const json = await getLinksJson();
-  return { msg: stdout, json };
-  // return { msg: "hello", json: {} };
+  const links = await getLinksJson();
+  return { msg: stdout, links };
+});
+
+server.patch("/link", async (request, reply) => {
+  const { id } = request.body as { id: string };
+  let isInstalled = await isWmlInstalled();
+
+  if (!isInstalled) {
+    return { isInstalled, links: {} };
+  }
+
+  const { stdout } = await execa("wml", ["rm", id]);
+  const links = await getLinksJson();
+  return { msg: stdout, links };
 });
 
 const start = async () => {
