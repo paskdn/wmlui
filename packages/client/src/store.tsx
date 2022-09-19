@@ -20,6 +20,7 @@ import {
 } from "react-flow-renderer";
 import { Links } from "./types";
 import { Label } from "@blueprintjs/core";
+import { activeColor } from "./helpers";
 
 const VERTICAL_SPACING = 80;
 
@@ -89,7 +90,7 @@ const getDetails = (links: Links) => {
       source: src,
       target: dest,
       markerStart: { type: MarkerType.ArrowClosed },
-      markerEnd: { type: MarkerType.Arrow },
+      markerEnd: { type: MarkerType.Arrow, color: activeColor(enabled) },
       type: "buttonedge",
       data: {
         enabled,

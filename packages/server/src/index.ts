@@ -91,7 +91,7 @@ server.patch("/link", async (request, reply) => {
 
 const start = async () => {
   try {
-    await server.listen({ port: 8080 });
+    await server.listen({ port: 9000 });
 
     const address = server.server.address();
     const port = typeof address === "string" ? address : address?.port;

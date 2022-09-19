@@ -16,6 +16,7 @@ import {
 } from "@blueprintjs/core";
 import { AppToaster } from "../toaster";
 import { useRemoveLink, useUpdateLink } from "../apis";
+import { activeColor } from "../helpers";
 
 const foreignObjectSize = 40;
 
@@ -91,7 +92,9 @@ export default function Toggle({
       </Alert>
       <path
         id={id}
-        style={style}
+        style={{
+          stroke: activeColor(data.enabled),
+        }}
         className="react-flow__edge-path"
         d={edgePath}
         markerEnd={markerEnd}
@@ -103,7 +106,6 @@ export default function Toggle({
         onMouseLeave={(e) => {
           setShow(false);
         }}
-        style={{ backgroundColor: "red" }}
         width={foreignObjectSize}
         height={foreignObjectSize}
         x={edgeCenterX - foreignObjectSize / 2}

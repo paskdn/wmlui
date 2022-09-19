@@ -20,7 +20,7 @@ export const useUpdateLink = () => {
         const edge = state.edges.find((edge) => edge.data.key === details.key)!;
         edge.data.enabled = !edge.data.enabled;
       });
-      const res = await axios.patch(`http://127.0.0.1:8080/`, details);
+      const res = await axios.patch(`http://127.0.0.1:9000/`, details);
       return res.data;
     },
     {
@@ -61,7 +61,7 @@ export const useLinks = () => {
 export const useGetLinks = () => {
   const { updateFlow } = useStore();
   return useQuery(["getLinks"], () =>
-    axios.get("http://127.0.0.1:8080/").then((res) => {
+    axios.get("http://127.0.0.1:9000/").then((res) => {
       updateFlow(res.data.links);
       return res.data;
     })
@@ -79,7 +79,7 @@ export const useAddLink = (link: string) => {
         intent: Intent.NONE,
       });
       return axios
-        .post("http://127.0.0.1:8080/link", {
+        .post("http://127.0.0.1:9000/link", {
           paths: link.split(",").map((i) => i.trim()),
         })
         .then((res) => res.data);
@@ -111,7 +111,7 @@ export const useRemoveLink = (id: string) => {
         intent: Intent.NONE,
       });
       return axios
-        .patch("http://127.0.0.1:8080/link", {
+        .patch("http://127.0.0.1:9000/link", {
           id,
         })
         .then((res) => res.data);
